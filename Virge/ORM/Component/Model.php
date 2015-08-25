@@ -300,7 +300,7 @@ class Model extends \Virge\Core\Model {
             $results[] = $row;
         }
         if(empty($results)){
-            return [];
+            return array();
         }
         return $results;
     }

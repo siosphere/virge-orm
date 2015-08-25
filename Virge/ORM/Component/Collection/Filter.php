@@ -217,10 +217,10 @@ class Filter extends Model{
      * @param mixed $value
      */
     public static function param($type, $value){
-        self::$collection->addParameter([
+        self::$collection->addParameter(array(
             'type'      =>      $type,
             'value'     =>      $value
-        ]);
+        ));
     }
     
     /**
