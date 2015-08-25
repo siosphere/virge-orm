@@ -1,0 +1,20 @@
+{
+    "name": "virge/orm",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/siosphere/virge-core"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/siosphere/virge-db"
+        }
+    ],
+    "require": {
+        "virge/core": "dev-master",
+        "virge/db": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {"Virge\\": "Virge/"}
+    }
+}
