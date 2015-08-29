@@ -1,5 +1,5 @@
 <?php
-namespace Virge\ORM\Component\Collection;
+namespace Virge\ORM\Component;
 
 use Virge\Database;
 use Virge\Database\Exception\InvalidQueryException;
