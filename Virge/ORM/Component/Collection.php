@@ -146,7 +146,7 @@ class Collection extends \Virge\Core\Model {
         }
         
         //prepared statements
-        $stmt = $this->_prepare($sql);
+        $stmt = $this->_prepare($this->query);
         
         $this->stmt = $stmt;
         
