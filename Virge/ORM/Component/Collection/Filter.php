@@ -1,6 +1,8 @@
 <?php
 namespace Virge\ORM\Component\Collection;
 
+use Virge\Core\Model;
+
 /**
  * 
  * @author Michael Kramer
