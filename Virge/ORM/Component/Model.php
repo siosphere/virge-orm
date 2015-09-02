@@ -104,7 +104,7 @@ class Model extends \Virge\Core\Model {
             $sql_fields[] = '`' . $field['field_name'] . '`';
             $field_name = $field['field_name'];
             $$field_name = $this->$field['field_name'];
-            if($$field_name instanceof DateTime){
+            if($$field_name instanceof \DateTime){
                 $$field_name = $$field_name->format('Y-m-d H:i:s');
             }
             $values[] = $$field_name;
