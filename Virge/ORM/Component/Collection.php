@@ -22,6 +22,15 @@ class Collection extends \Virge\Core\Model {
     protected $debug = false;
     protected $parameters = array();
     protected $stmt = null;
+    protected $connection = 'default';
+    
+    /**
+     * Set the database connection to use
+     * @param string $connection
+     */
+    public function connection($connection) {
+        $this->connection = $connection;
+    }
     
     /**
      * Start a collection from a model class
@@ -236,7 +245,7 @@ class Collection extends \Virge\Core\Model {
             $i++;
         }
         
-        $stmt = Database::prepare($query, $paramValues);
+        $stmt = Database::connection($this->connection)->prepare($query, $paramValues);
         if(!$stmt){
             throw new InvalidQueryException('Failed to prepare statement: ' . $query);
         }

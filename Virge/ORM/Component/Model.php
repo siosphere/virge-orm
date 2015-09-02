@@ -17,6 +17,18 @@ class Model extends \Virge\Core\Model {
     
     protected static $_globalTableData;
     
+    protected $_connection = 'default';
+    
+    /**
+     * Change default database connection
+     * @param string $connection
+     * @return \Virge\ORM\Component\Model
+     */
+    public function _connection($connection) {
+        $this->_connection = $connection;
+        return $this;
+    }
+    
     /**
      * Delete this model, if real is passed in, then actually delete the row,
      * otherwise just update the deleted on
@@ -37,7 +49,7 @@ class Model extends \Virge\Core\Model {
         
         if($real){
             $sql = "DELETE FROM `{$this->_table}` WHERE `{$primaryKey}` =? LIMIT 1";
-            $stmt = Database::prepare($sql, array($primaryKeyValue));
+            $stmt = Database::connection($this->_connection)->prepare($sql, array($primaryKeyValue));
             $stmt->execute();
             if ($stmt->error == '') {
                 $this->setLastError($stmt->error);
@@ -93,7 +105,7 @@ class Model extends \Virge\Core\Model {
         $this->setLastError(NULL);
         
         $sql = "INSERT INTO `{$this->_table}` (" . implode(',', $sql_fields) . ") VALUES (" . implode(',', $value_holder) . ")";
-        $stmt = Database::prepare($sql, $values);
+        $stmt = Database::connection($this->_connection)->prepare($sql, $values);
         $stmt->execute();
         if ($stmt->error !== '') {
             $this->setLastError($stmt->error);
@@ -141,7 +153,7 @@ class Model extends \Virge\Core\Model {
         $values[] = $primaryValue;
         
         $sql = "UPDATE `{$this->_table}` SET " . implode(',', $sql_fields) . " WHERE `{$primaryKey}` =?";
-        $stmt = Database::prepare($sql, $values);
+        $stmt = Database::connection($this->_connection)->prepare($sql, $values);
         $stmt->execute();
         $this->setLastError(NULL);
         if($stmt->error !== ''){
@@ -187,7 +199,7 @@ class Model extends \Virge\Core\Model {
         }
         
         $sql = "SELECT * FROM `{$this->_table}` WHERE `{$key_field}` =? LIMIT 0,1";
-        $stmt = Database::prepare($sql, array($id));
+        $stmt = Database::connection($this->_connection)->prepare($sql, array($id));
         if(!$stmt){
             throw new InvalidQueryException('Failed to prepare SQL query: ' . $sql);
         }
@@ -229,7 +241,7 @@ class Model extends \Virge\Core\Model {
         }*/
         
         $sql = "SHOW COLUMNS FROM `{$this->_table}`";
-        $result = Database::query($sql);
+        $result = Database::connection($this->_connection)->query($sql);
         if($result){
             foreach ($result as $row) {
                 $field_name = $row['Field'];
