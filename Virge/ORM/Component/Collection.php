@@ -41,6 +41,9 @@ class Collection extends \Virge\Core\Model {
         $collection = new Collection();
         $collection->setModel(new $model);
         
+        //set the collection to use the model connection type by default
+        $collection->connection($collection->getModel()->_getConnection());
+        
         $table = $collection->getModel()->getSqlTable();
         $collection->setTable($table);
         return $collection;

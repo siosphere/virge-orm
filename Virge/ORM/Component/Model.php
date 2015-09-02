@@ -20,6 +20,14 @@ class Model extends \Virge\Core\Model {
     protected $_connection = 'default';
     
     /**
+     * Allow external access to what connection the model is configured for
+     * @return string
+     */
+    public function _getConnection(){
+        return $this->_connection;
+    }
+    
+    /**
      * Change default database connection
      * @param string $connection
      * @return \Virge\ORM\Component\Model
