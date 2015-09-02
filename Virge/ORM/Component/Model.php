@@ -115,8 +115,10 @@ class Model extends \Virge\Core\Model {
         $sql = "INSERT INTO `{$this->_table}` (" . implode(',', $sql_fields) . ") VALUES (" . implode(',', $value_holder) . ")";
         $stmt = Database::connection($this->_connection)->prepare($sql, $values);
         $stmt->execute();
+        $success = true;
         if ($stmt->error !== '') {
             $this->setLastError($stmt->error);
+            $success = false;
         }
         
         $id = $stmt->insert_id;
@@ -127,7 +129,7 @@ class Model extends \Virge\Core\Model {
         
         $this->{$primaryKey} = $id;
         
-        return true;
+        return $success;
     }
 
     /**
