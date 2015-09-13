@@ -117,7 +117,7 @@ class Collection extends \Virge\Core\Model {
      * @return \Virge\ORM\Component\Collection\Collection
      * @throws \Exception
      */
-    public function get(){
+    public function get($key = null, $defaultValue = null){
         if($this->order){
             $this->query .= " ORDER BY";
             if(is_array($this->order)){
