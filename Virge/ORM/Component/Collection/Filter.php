@@ -42,7 +42,7 @@ class Filter extends Model{
      * 
      */
     protected static function before(){
-        if(self::$filters[$filter_group] > 0){
+        if(self::$filters[self::$filter_group] > 0){
             self::$collection->query .= ' '.self::$operator;
         }
     }
@@ -51,7 +51,7 @@ class Filter extends Model{
      * 
      */
     protected static function after(){
-        self::$filters[$filter_group]++;
+        self::$filters[self::$filter_group]++;
     }
     
     /**
