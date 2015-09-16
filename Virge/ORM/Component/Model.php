@@ -387,10 +387,6 @@ class Model extends \Virge\Core\Model {
      */
     protected function _getKey($key) {
         
-        if(!is_string($key)){
-            throw new \InvalidArgumentException("key must be a string");
-        }
-        
         if(trim($key) === ''){
             return false;
         }
@@ -416,6 +412,10 @@ class Model extends \Virge\Core\Model {
         
         $key = $this->_getKey($key);
         
+        if(!is_string($key)){
+            throw new \InvalidArgumentException("key must be a string");
+        }
+        
         if(!$key) {
             return false;
         }
@@ -433,6 +433,10 @@ class Model extends \Virge\Core\Model {
     public function get($key, $defaultValue = null) {
         
         $key = $this->_getKey($key);
+        
+        if(!is_string($key)){
+            throw new \InvalidArgumentException("key must be a string");
+        }
         
         if(!$key) {
             return null;
