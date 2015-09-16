@@ -20,6 +20,26 @@ class Model extends \Virge\Core\Model {
     protected $_connection = 'default';
     
     /**
+     * Construct our object, will assign properties in key => value
+     * @param array $data
+     */
+    public function __construct($data = array()) {
+        
+        if(!is_array($data)){
+            return;
+        }
+        
+        foreach ($data as $key => $value) {
+            $key = $this->_getKey($key);
+            if(!$key) {
+                continue;
+            }
+            
+            $this->$key = $value;
+        }
+    }
+    
+    /**
      * Allow external access to what connection the model is configured for
      * @return string
      */
