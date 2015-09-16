@@ -103,6 +103,11 @@ class Model extends \Virge\Core\Model {
             $value_holder[] = '?';
             $sql_fields[] = '`' . $field['field_name'] . '`';
             $field_name = $field['field_name'];
+            
+            if(false !== ($overrideKey = $this->_getOverrideKey($field_name))){
+                $field_name = $overrideKey;
+            }
+            
             $$field_name = $this->$field['field_name'];
             if($$field_name instanceof \DateTime){
                 $$field_name = $$field_name->format('Y-m-d H:i:s');
@@ -150,6 +155,10 @@ class Model extends \Virge\Core\Model {
             $sql_fields[] = '`' . $field['field_name'] . '` =?';
             
             $field_name = $field['field_name'];
+            
+            if(false !== ($overrideKey = $this->_getOverrideKey($field_name))){
+                $field_name = $overrideKey;
+            }
             
             if($this->$field['field_name'] instanceof \DateTime){
                 $$field_name = $this->$field['field_name']->format('Y-m-d H:i:s');
@@ -225,6 +234,11 @@ class Model extends \Virge\Core\Model {
         }
         
         foreach ($data as $key => $value) {
+            $key = $this->_getKey($key);
+            if(!$key) {
+                continue;
+            }
+            
             $this->$key = $value;
         }
         
@@ -344,5 +358,86 @@ class Model extends \Virge\Core\Model {
     
     public function getSqlTable() {
         return $this->_table;
+    }
+    
+    protected $_override;
+    
+    /**
+     * Set our override key
+     * @param type $key
+     * @param type $original
+     */
+    protected function _overrideKey($key, $original) {
+        $this->_override[$original] = $key;
+    }
+    
+    /**
+     * If we have an override key, return the original
+     * @param string $key
+     * @return string
+     */
+    protected function _getOverrideKey($key) {
+        return isset($this->_override[$key]) ? $this->_override[$key] : false;
+    }
+    
+    /**
+     * 
+     * @param string $key
+     * @return string
+     */
+    protected function _getKey($key) {
+        
+        if(!is_string($key)){
+            throw new \InvalidArgumentException("key must be a string");
+        }
+        
+        if(trim($key) === ''){
+            return false;
+        }
+        
+        if(strpos($key, ' ') !== false) {
+            $original = $key;
+            //we have an override key
+            $key = str_replace(' ', '_', $key);
+            $this->_overrideKey($key, $original);
+        }
+        
+        return $key;
+    }
+    
+    /**
+     * Set value ( will call setter )
+     * @param string $key
+     * @param mixed $value
+     * @return boolean
+     * @throws \InvalidArgumentException
+     */
+    public function set($key, $value){
+        
+        $key = $this->_getKey($key);
+        
+        if(!$key) {
+            return false;
+        }
+        
+        return parent::set($key, $value);
+    }
+    
+    /**
+     * Get value (will call getter )
+     * @param string $key
+     * @param mixed $defaultValue
+     * @return mixed
+     * @throws \InvalidArgumentException
+     */
+    public function get($key, $defaultValue = null) {
+        
+        $key = $this->_getKey($key);
+        
+        if(!$key) {
+            return null;
+        }
+        
+        return parent::get($key, $defaultValue);
     }
 }

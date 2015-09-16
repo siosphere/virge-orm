@@ -10,7 +10,7 @@ use Virge\Core\Model;
 class Filter extends Model{
     protected static $filter_group = NULL;
     protected static $filters = array();
-    protected static $filter_groups = array();
+    protected static $filter_groups = 1;
     public static $collection = NULL;
     protected static $operator = 'AND';
     
@@ -35,7 +35,7 @@ class Filter extends Model{
         self::$collection->query .= ' (';
         self::$filter_groups++;
         self::$filter_group = self::$filter_groups;
-        self::$filters[$filter_group] = 0;
+        self::$filters[self::$filter_group] = 0;
     }
     
     /**
