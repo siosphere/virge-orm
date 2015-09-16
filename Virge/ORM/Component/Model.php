@@ -108,7 +108,7 @@ class Model extends \Virge\Core\Model {
                 $field_name = $overrideKey;
             }
             
-            $$field_name = $this->$field['field_name'];
+            $$field_name = $this->$field_name;
             if($$field_name instanceof \DateTime){
                 $$field_name = $$field_name->format('Y-m-d H:i:s');
             }
@@ -160,10 +160,10 @@ class Model extends \Virge\Core\Model {
                 $field_name = $overrideKey;
             }
             
-            if($this->$field['field_name'] instanceof \DateTime){
-                $$field_name = $this->$field['field_name']->format('Y-m-d H:i:s');
+            if($this->$field_name instanceof \DateTime){
+                $$field_name = $this->$field_name->format('Y-m-d H:i:s');
             } else {
-                $$field_name = $this->$field['field_name'];
+                $$field_name = $this->$field_name;
             }
             
             $values[] = $$field_name;
