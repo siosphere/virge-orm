@@ -62,7 +62,8 @@ class Filter extends Model{
      */
     public static function isNull($field_name){
         self::before();
-        self::$collection->query .= " `{$field_name}` IS NULL";
+        $safeField = self::getFieldName($field_name);
+        self::$collection->query .= " {$safeField} IS NULL";
         self::after();
     }
     
@@ -71,7 +72,8 @@ class Filter extends Model{
      */
     public static function notNull($field_name){
         self::before();
-        self::$collection->query .= " `{$field_name}` IS NOT NULL";
+        $safeField = self::getFieldName($field_name);
+        self::$collection->query .= " {$safeField} IS NOT NULL";
         self::after();
     }
     
@@ -81,7 +83,8 @@ class Filter extends Model{
      */
     public static function like($field_name, $value){
         self::before();
-        self::$collection->query .= " `{$field_name}` LIKE ?";
+        $safeField = self::getFieldName($field_name);
+        self::$collection->query .= " {$safeField} LIKE ?";
         self::param('s', $value);
         self::after();
     }
@@ -92,7 +95,8 @@ class Filter extends Model{
      */
     public static function notLike($field_name, $value){
         self::before();
-        self::$collection->query .= " `{$field_name}` NOT LIKE ?";
+        $safeField = self::getFieldName($field_name);
+        self::$collection->query .= " {$safeField} NOT LIKE ?";
         self::param('s', $value);
         self::after();
     }
@@ -103,7 +107,8 @@ class Filter extends Model{
      */
     public static function eq($field_name, $value){
         self::before();
-        self::$collection->query .= " `{$field_name}` = ?";
+        $safeField = self::getFieldName($field_name);
+        self::$collection->query .= " {$safeField} = ?";
         if(is_numeric($value)){
             self::param('i', $value);
         } else {
@@ -118,7 +123,8 @@ class Filter extends Model{
      */
     public static function neq($field_name, $value){
         self::before();
-        self::$collection->query .= " `{$field_name}` != ?";
+        $safeField = self::getFieldName($field_name);
+        self::$collection->query .= " {$safeField} != ?";
         if(is_numeric($value)){
             self::param('i', $value);
         } else {
@@ -133,7 +139,8 @@ class Filter extends Model{
      */
     public static function gte($field_name, $value){
         self::before();
-        self::$collection->query .= " `{$field_name}` >= ?";
+        $safeField = self::getFieldName($field_name);
+        self::$collection->query .= " {$safeField} >= ?";
         if(is_numeric($value)){
             self::param('i', $value);
         } else {
@@ -148,7 +155,8 @@ class Filter extends Model{
      */
     public static function gt($field_name, $value){
         self::before();
-        self::$collection->query .= " `{$field_name}` > ?";
+        $safeField = self::getFieldName($field_name);
+        self::$collection->query .= " {$safeField} > ?";
         if(is_numeric($value)){
             self::param('i', $value);
         } else {
@@ -163,7 +171,8 @@ class Filter extends Model{
      */
     public static function lte($field_name, $value){
         self::before();
-        self::$collection->query .= " `{$field_name}` <= ?";
+        $safeField = self::getFieldName($field_name);
+        self::$collection->query .= " {$safeField} <= ?";
         if(is_numeric($value)){
             self::param('i', $value);
         } else {
@@ -178,7 +187,8 @@ class Filter extends Model{
      */
     public static function lt($field_name, $value){
         self::before();
-        self::$collection->query .= " `{$field_name}` < ?";
+        $safeField = self::getFieldName($field_name);
+        self::$collection->query .= " {$safeField} < ?";
         if(is_numeric($value)){
             self::param('i', $value);
         } else {
@@ -198,7 +208,8 @@ class Filter extends Model{
             self::param('s', $paramValues);
             $value = '?';
         }
-        self::$collection->query .= " `{$field_name}` IN($value)";
+        $safeField = self::getFieldName($field_name);
+        self::$collection->query .= " {$safeField} IN($value)";
         self::after();
     }
     
@@ -213,7 +224,10 @@ class Filter extends Model{
             self::param('s', $paramValues);
             $value = '?';
         }
-        self::$collection->query .= " `{$field_name}` NOT IN($value)";
+        
+        $safeField = self::getFieldName($field_name);
+        
+        self::$collection->query .= " {$safeField} NOT IN($value)";
         self::after();
     }
     
@@ -244,5 +258,13 @@ class Filter extends Model{
         self::$filter_groups = array();
         self::$collection = NULL;
         self::$operator = 'AND';
+    }
+    
+    public static function getFieldName($field_name) {
+        $parts = explode('.', $field_name);
+        
+        return implode('.', array_map(function($part){
+            return "`{$part}`";
+        }, $parts));
     }
 }

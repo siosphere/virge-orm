@@ -269,7 +269,7 @@ class Model extends \Virge\Core\Model {
      * Get the table definition as an associative array
      * @return array|null
      */
-    protected function _getDef() {
+    public function _getDef() {
         
         if (isset(self::$_globalTableData[$this->_table])) {
             return $this->_tableData = self::$_globalTableData[$this->_table];
