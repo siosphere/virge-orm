@@ -174,7 +174,7 @@ class Model extends \Virge\Core\Model {
         foreach ($this->_tableData as $field) {
             if($field['primary']) {
                 $primaryKey = $field['field_name'];
-                $primaryValue = $this->$field['field_name'];
+                $primaryValue = $this->$primaryKey;
                 continue;
             }
             
