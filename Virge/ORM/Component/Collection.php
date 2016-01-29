@@ -25,6 +25,7 @@ class Collection extends \Virge\Core\Model {
     protected $parameters = array();
     protected $stmt = null;
     protected $connection = 'default';
+    protected $joinsBuilt = false;
     
     /**
      * Set the database connection to use
@@ -90,12 +91,17 @@ class Collection extends \Virge\Core\Model {
             return $this->getCount();
         }
         $table = $this->getTable();
-        $query = "SELECT COUNT(*) AS `count` FROM `{$table}`" . $this->query;
+        $this->buildJoins();
+        $this->buildWhere();
+        
+        
+        $alias = $this->getAlias();
+        
+        $query = "SELECT COUNT(*) AS `count` FROM `{$table}` AS `{$alias}`" . $this->query;
 
         if($this->getDebug()){
             echo $query . PHP_EOL;
         }
-        
         
         $stmt = $this->_prepare($query);
 
@@ -170,6 +176,9 @@ class Collection extends \Virge\Core\Model {
     
     protected function buildWhere()
     {
+        if($this->joinsBuilt) {
+            return;
+        }
         foreach($this->filterClosures as $closure) {
             if(empty($this->filters)){
                 $this->query .= ' WHERE';
@@ -182,9 +191,13 @@ class Collection extends \Virge\Core\Model {
     
     protected function buildJoins()
     {
+        if($this->joinsBuilt) {
+            return;
+        }
         foreach($this->joins as $join) {
             $this->query .= $join->buildQuery($this->getAlias()) . " ";
         }
+        $this->joinsBuilt = true;
     }
     
     /**
