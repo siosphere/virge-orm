@@ -26,6 +26,7 @@ class Collection extends \Virge\Core\Model {
     protected $stmt = null;
     protected $connection = 'default';
     protected $joinsBuilt = false;
+    protected $whereBuilt = false;
     
     /**
      * Set the database connection to use
@@ -176,7 +177,7 @@ class Collection extends \Virge\Core\Model {
     
     protected function buildWhere()
     {
-        if($this->joinsBuilt) {
+        if($this->whereBuilt) {
             return;
         }
         foreach($this->filterClosures as $closure) {
@@ -187,6 +188,7 @@ class Collection extends \Virge\Core\Model {
             $closure($this);
             Filter::reset();
         }
+        $this->whereBuilt = true;
     }
     
     protected function buildJoins()
