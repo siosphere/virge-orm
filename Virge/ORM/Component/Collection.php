@@ -133,11 +133,11 @@ class Collection extends \Virge\Core\Model {
                     if($i > 0){
                         $this->query .= ",";
                     }
-                    $this->query .= " `{$field}` {$dir}";
+                    $this->query .= " {$this->escapeField($field)} {$dir}";
                     $i++;
                 }
             } else {
-                $this->query .= " `{$this->order}` {$this->dir}";
+                $this->query .= " {$this->escapeField($this->order)} {$this->dir}";
             }
         }
         if($this->getLimit() != NULL){
@@ -383,5 +383,11 @@ class Collection extends \Virge\Core\Model {
             $returnModels[] = new $className($modelFields);
         }
         return $returnModels;
+    }
+    
+    protected function escapeField($field) {
+        return implode('.', array_map(function($part) {
+            return "`{$part}`";
+        }, explode('.', $field)));
     }
 }
