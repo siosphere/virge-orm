@@ -19,6 +19,31 @@ class Model extends \Virge\Core\Model {
     
     protected $_connection = 'default';
     
+    protected static $_cache = [];
+    
+    protected static function getFromCache($className, $keyField, $keyValue)
+    {
+        if(!isset(self::$_cache[$className]) || !isset(self::$_cache[$className][$keyField]) || !isset(self::$_cache[$className][$keyField][$keyValue]))
+        {
+            return null;
+        }
+        
+        return self::$_cache[$className][$keyField][$keyValue];
+    }
+    
+    protected static function setCache($className, $keyField, $keyValue, $object)
+    {
+        if(!isset(self::$_cache[$className])) {
+            self::$_cache[$className] = [];
+        }
+        
+        if(!isset(self::$_cache[$className][$keyField])) {
+            self::$_cache[$className][$keyField] = [];
+        }
+        
+        return self::$_cache[$className][$keyField][$keyValue] = $object;
+    }
+    
     /**
      * Construct our object, will assign properties in key => value
      * @param array $data
@@ -245,20 +270,22 @@ class Model extends \Virge\Core\Model {
             return false;
         }
         
-        $sql = "SELECT * FROM `{$this->_table}` WHERE `{$key_field}` =? LIMIT 0,1";
-        $stmt = Database::connection($this->_connection)->prepare($sql, array($id));
-        if(!$stmt){
-            throw new InvalidQueryException('Failed to prepare SQL query: ' . $sql);
-        }
-        $stmt->execute();
-        
-        if ($row = $stmt->fetch_assoc()) {
-            $data = $row;
-        }
-        $stmt->close();
-        
-        if(!isset($data)){
-            return false;
+        if(null === ($data = self::getFromCache(static::class, $key_field, $id))) {
+            $sql = "SELECT * FROM `{$this->_table}` WHERE `{$key_field}` =? LIMIT 0,1";
+            $stmt = Database::connection($this->_connection)->prepare($sql, array($id));
+            if(!$stmt){
+                throw new InvalidQueryException('Failed to prepare SQL query: ' . $sql);
+            }
+            $stmt->execute();
+            
+            $data = $stmt->fetch_assoc();
+            $stmt->close();
+
+            if(!isset($data)){
+                return false;
+            }
+            
+            static::setCache(static::class, $key_field, $id, $data);
         }
         
         foreach ($data as $key => $value) {

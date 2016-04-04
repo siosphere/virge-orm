@@ -151,7 +151,16 @@ class Join extends Model{
         $model = new $this->modelClass;
         $table = $model->getSqlTable();
         
-        $sql .= "JOIN `{$table}` AS `{$this->alias}` ON `{$mainTable}`.`{$this->sourceField}` =`{$this->alias}`.`{$this->targetField}` ";
+        $sourceField = $this->sourceField;
+        $sourceTableData = explode('.', $sourceField);
+        if(count($sourceTableData) > 1) {
+            $sourceTable = $sourceTableData[0];
+            $sourceField = $sourceTableData[1];
+        } else {
+            $sourceTable = $mainTable;
+        }
+        
+        $sql .= "JOIN `{$table}` AS `{$this->alias}` ON `{$sourceTable}`.`{$sourceField}` =`{$this->alias}`.`{$this->targetField}` ";
         
         return $sql;
     }
