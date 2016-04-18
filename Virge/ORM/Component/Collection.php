@@ -4,6 +4,7 @@ namespace Virge\ORM\Component;
 use Virge\Database;
 use Virge\Database\Exception\InvalidQueryException;
 use Virge\ORM\Component\Collection\Filter;
+use Virge\ORM\Component\Collection\GroupBy;
 use Virge\ORM\Component\Collection\Join;
 
 /**
@@ -27,6 +28,11 @@ class Collection extends \Virge\Core\Model {
     protected $connection = 'default';
     protected $joinsBuilt = false;
     protected $whereBuilt = false;
+    
+    /**
+     * @var GroupBy
+     */
+    protected $groupBy;
     
     /**
      * Set the database connection to use
@@ -133,11 +139,11 @@ class Collection extends \Virge\Core\Model {
                     if($i > 0){
                         $this->query .= ",";
                     }
-                    $this->query .= " {$this->escapeField($field)} {$dir}";
+                    $this->query .= " " . self::escapeField($field). " {$dir}";
                     $i++;
                 }
             } else {
-                $this->query .= " {$this->escapeField($this->order)} {$this->dir}";
+                $this->query .= " " . self::escapeField($this->order). " {$this->dir}";
             }
         }
         if($this->getLimit() != NULL){
@@ -188,6 +194,12 @@ class Collection extends \Virge\Core\Model {
             $closure($this);
             Filter::reset();
         }
+        
+        if($this->groupBy)
+        {
+            $this->query .= ' ' . $this->groupBy->getQuery();
+        }
+        
         $this->whereBuilt = true;
     }
     
@@ -312,6 +324,12 @@ class Collection extends \Virge\Core\Model {
         return $this;
     }
     
+    public function groupBy($fields)
+    {
+        $this->groupBy = new GroupBy($fields);
+        return $this;
+    }
+    
     /**
      * Prepare a statement
      * @param string $query
@@ -385,7 +403,7 @@ class Collection extends \Virge\Core\Model {
         return $returnModels;
     }
     
-    protected function escapeField($field) {
+    public static function escapeField($field) {
         return implode('.', array_map(function($part) {
             return "`{$part}`";
         }, explode('.', $field)));
