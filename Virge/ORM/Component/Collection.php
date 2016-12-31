@@ -292,8 +292,11 @@ class Collection extends \Virge\Core\Model {
      * Add a parameter to the query
      * @param type $param
      */
-    public function addParameter($param){
+    public function addParameter($param)
+    {
         $this->parameters[] = $param;
+
+        return $this;
     }
     
     public function join($modelClass, $alias, $sourceField, $targetField, $additionalJoinCondition = null)
