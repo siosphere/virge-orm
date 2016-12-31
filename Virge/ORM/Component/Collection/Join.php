@@ -170,15 +170,21 @@ class Join extends Model{
         $table = $model->getSqlTable();
         
         $sourceField = $this->sourceField;
-        $sourceTableData = explode('.', $sourceField);
-        if(count($sourceTableData) > 1) {
-            $sourceTable = $sourceTableData[0];
-            $sourceField = $sourceTableData[1];
-        } else {
-            $sourceTable = $mainTable;
+        if($sourceField) {
+            $sourceTableData = explode('.', $sourceField);
+            if(count($sourceTableData) > 1) {
+                $sourceTable = $sourceTableData[0];
+                $sourceField = $sourceTableData[1];
+            } else {
+                $sourceTable = $mainTable;
+            }
         }
         
-        $sql .= "JOIN `{$table}` AS `{$this->alias}` ON `{$sourceTable}`.`{$sourceField}` =`{$this->alias}`.`{$this->targetField}` ";
+        $sql .= "JOIN `{$table}` AS `{$this->alias}` ON ";
+
+        if($sourceField) {
+            $sql .= "`{$sourceTable}`.`{$sourceField}` =`{$this->alias}`.`{$this->targetField}` ";
+        }
 
         $additionalJoinCondition = $this->getAdditionalJoinCondition();
         if($additionalJoinCondition) {
