@@ -43,6 +43,11 @@ class Join extends Model{
      * @var bool 
      */
     protected $select;
+
+    /**
+     * @var string
+     */
+    protected $additionalJoinCondition;
     
     /**
      * @param string $modelClass
@@ -90,6 +95,14 @@ class Join extends Model{
     }
 
     /**
+     * @return string
+     */
+    public function getAdditionalJoinCondition()
+    {
+        return $this->additionalJoinCondition;
+    }
+
+    /**
      * @param string $modelClass
      * @return \Virge\ORM\Component\Collection\Join
      */
@@ -123,6 +136,11 @@ class Join extends Model{
     public function setTargetField($targetField) {
         $this->targetField = $targetField;
         return $this;
+    }
+
+    public function setAdditionalJoinCondition($additionalJoinCondition)
+    {
+        $this->additionalJoinCondition = $additionalJoinCondition;
     }
 
     /**
@@ -161,6 +179,11 @@ class Join extends Model{
         }
         
         $sql .= "JOIN `{$table}` AS `{$this->alias}` ON `{$sourceTable}`.`{$sourceField}` =`{$this->alias}`.`{$this->targetField}` ";
+
+        $additionalJoinCondition = $this->getAdditionalJoinCondition();
+        if($additionalJoinCondition) {
+            $sql .= $additionalJoinCondition . " ";
+        }
         
         return $sql;
     }

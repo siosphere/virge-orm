@@ -296,9 +296,12 @@ class Collection extends \Virge\Core\Model {
         $this->parameters[] = $param;
     }
     
-    public function join($modelClass, $alias, $sourceField, $targetField)
+    public function join($modelClass, $alias, $sourceField, $targetField, $additionalJoinCondition = null)
     {
-        $this->joins[] = new Join($modelClass, $alias, $sourceField, $targetField);
+        $join = new Join($modelClass, $alias, $sourceField, $targetField);
+        $join->setAdditionalJoinCondition($additionalJoinCondition);
+
+        $this->joins[] = $join;
         
         return $this;
     }
