@@ -298,6 +298,14 @@ class Collection extends \Virge\Core\Model {
 
         return $this;
     }
+
+    public function collectionCallback($callback, $additionalParams = [])
+    {
+        $params = array_merge([$this], $additionalParams);
+        call_user_func_array($callback, $params);
+
+        return $this;
+    }
     
     public function join($modelClass, $alias, $sourceField, $targetField, $additionalJoinCondition = null)
     {
