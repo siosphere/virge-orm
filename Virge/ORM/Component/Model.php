@@ -244,7 +244,7 @@ class Model extends \Virge\Core\Model {
      * @return boolean
      * @throws \Exception
      */
-    public function load($id = 0, $by_field = false) {
+    public function load($id = 0, $by_field = false, $use_cache = false) {
         
         if($id === NULL && $this->_getPrimaryKeyValue()){
             $id = $this->_getPrimaryKeyValue();
@@ -270,7 +270,7 @@ class Model extends \Virge\Core\Model {
             return false;
         }
         
-        if(null === ($data = self::getFromCache(static::class, $key_field, $id))) {
+        if(!$use_cache || null === ($data = self::getFromCache(static::class, $key_field, $id))) {
             $sql = "SELECT * FROM `{$this->_table}` WHERE `{$key_field}` =? LIMIT 0,1";
             $stmt = Database::connection($this->_connection)->prepare($sql, array($id));
             if(!$stmt){
@@ -284,17 +284,26 @@ class Model extends \Virge\Core\Model {
             if(!isset($data)){
                 return false;
             }
-            
-            static::setCache(static::class, $key_field, $id, $data);
-        }
-        
-        foreach ($data as $key => $value) {
-            $key = $this->_getKey($key);
-            if(!$key) {
-                continue;
+
+            foreach ($data as $key => $value) {
+                $key = $this->_getKey($key);
+                if(!$key) {
+                    continue;
+                }
+                
+                $this->$key = $value;
             }
-            
-            $this->$key = $value;
+
+            static::setCache(static::class, $key_field, $id, $this);
+        } else {
+            foreach($data as $key => $value) {
+                $key = $this->_getKey($key);
+                if(!$key) {
+                    continue;
+                }
+                
+                $this->$key = $value;
+            }
         }
         
         return true;
