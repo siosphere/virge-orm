@@ -18,6 +18,8 @@ class Model extends \Virge\Core\Model {
     protected static $_globalTableData;
     
     protected $_connection = 'default';
+
+    protected $_updateLock = false;
     
     protected static $_cache = [];
     
@@ -233,8 +235,18 @@ class Model extends \Virge\Core\Model {
         }
         
         $stmt->close();
+
+        if($this->_updateLock) {
+            $this->_releaseLock();
+        }
         
         return $this->getLastError() === NULL ? true : false;
+    }
+
+    public function loadForUpdate($id = 0, $by_field = false)
+    {
+        $this->_updateLock = true;
+        return $this->load($id, $by_field);
     }
     
     /**
@@ -269,9 +281,18 @@ class Model extends \Virge\Core\Model {
         if ($key_field == '') {
             return false;
         }
+
+        if($this->_updateLock) {
+            if(!Database::connection($this->_connection)->getResource()->autocommit(false)) {
+                throw new \RuntimeException("Failed to start transaction. SQL Error: " . Database::connection($this->_connection)->getError());
+            }
+        }
         
         if(!$use_cache || null === ($data = self::getFromCache(static::class, $key_field, $id))) {
             $sql = "SELECT * FROM `{$this->_table}` WHERE `{$key_field}` =? LIMIT 0,1";
+            if($this->_updateLock) {
+                $sql .= " FOR UPDATE";
+            }
             $stmt = Database::connection($this->_connection)->prepare($sql, array($id));
             if(!$stmt){
                 throw new InvalidQueryException('Failed to prepare SQL query: ' . $sql);
@@ -349,6 +370,26 @@ class Model extends \Virge\Core\Model {
         }
         
         return NULL;
+    }
+
+    public function _getLock()
+    {
+        $this->_updateLock = true;
+        Database::connection($this->_connection)->getResource()->autocommit(false);
+        if(!Database::query("SELECT null FROM `{$this->_table}` WHERE `{$this->_getPrimaryKey()}` = ? FOR UPDATE", [$this->_getPrimaryKeyValue()])) {
+            throw new \RuntimeException("Failed to get lock: " . Database::connection($this->_connection)->getError());
+        }
+
+    }
+
+    public function _releaseLock()
+    {
+        if(!Database::connection($this->_connection)->getResource()->commit()) {
+            throw new \RuntimeException("Failed to commit SQL Transaction: " . Database::connection($this->_connection)->getError());
+        }
+
+        Database::connection($this->_connection)->getResource()->autocommit(true);
+        $this->_updateLock = false;
     }
     
     /**
