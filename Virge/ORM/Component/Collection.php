@@ -167,11 +167,11 @@ class Collection extends \Virge\Core\Model {
 
         $selectFrom = " FROM `{$table}` AS `{$alias}`";
         
-        if($this->getForUpdate()) {
-            $selectFrom .= " FOR UPDATE ";
-        }
-        
         $this->query = $sql . $selectFrom . $this->query;
+
+        if($this->getForUpdate()) {
+            $this->query .= " FOR UPDATE";
+        }
         
         if($this->getDebug()){
             echo $this->query . PHP_EOL;
