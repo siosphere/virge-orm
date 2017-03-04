@@ -164,8 +164,14 @@ class Collection extends \Virge\Core\Model {
             $sql .= "{$this->getSelectQuery()}";
         }
         $alias = $this->getAlias();
+
+        $selectFrom = " FROM `{$table}` AS `{$alias}`";
         
-        $this->query = $sql . " FROM `{$table}` AS `{$alias}`" . $this->query;
+        if($this->getForUpdate()) {
+            $selectFrom .= " FOR UPDATE ";
+        }
+        
+        $this->query = $sql . $selectFrom . $this->query;
         
         if($this->getDebug()){
             echo $this->query . PHP_EOL;
