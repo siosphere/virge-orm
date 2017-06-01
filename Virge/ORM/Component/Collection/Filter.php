@@ -204,9 +204,12 @@ class Filter extends Model{
     public static function in($field_name, $value){
         self::before();
         if(is_array($value)){
-            $paramValues = implode(',', $value);
-            self::param('s', $paramValues);
-            $value = '?';
+
+            foreach($value as $key => $paramValue) {
+                self::param(is_numeric($paramValue) ? 'i' : 's', $paramValue);
+            }
+            
+            $value = implode(',', array_fill(0, count($value), '?'));
         }
         $safeField = self::getFieldName($field_name);
         self::$collection->query .= " {$safeField} IN($value)";
