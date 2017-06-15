@@ -310,7 +310,7 @@ class Model extends \Virge\Core\Model
             $data = $stmt->fetch_assoc();
             $stmt->close();
 
-            if(!isset($data)){
+            if(!$data){
                 return false;
             }
 
