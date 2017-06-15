@@ -2,7 +2,7 @@
     "name": "virge/orm",
     "require": {
         "virge/core": "~1.0",
-        "virge/db": "~2.0"
+        "virge/db": "~2.3.1"
     },
     "autoload": {
         "psr-4": {"Virge\\": "Virge/"}

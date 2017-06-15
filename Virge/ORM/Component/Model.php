@@ -9,8 +9,8 @@ use Virge\Database\Exception\InvalidQueryException;
  * @author Michael Kramer
  */
 
-class Model extends \Virge\Core\Model {
-    
+class Model extends \Virge\Core\Model 
+{    
     protected $_table = '';
     
     protected $_tableData = array();
@@ -20,6 +20,8 @@ class Model extends \Virge\Core\Model {
     protected $_connection = 'default';
 
     protected $_updateLock = false;
+
+    protected $_tracked = false;
     
     protected static $_cache = [];
     
@@ -91,7 +93,8 @@ class Model extends \Virge\Core\Model {
      * @return type
      * @throws UnloadedModelException
      */
-    public function delete($real = false) {
+    public function delete($real = false) 
+    {
         
         $primaryKey = $this->_getPrimaryKey();
         $primaryKeyValue = $this->_getPrimaryKeyValue();
@@ -122,15 +125,18 @@ class Model extends \Virge\Core\Model {
      * Save this model
      * @return boolean
      */
-    public function save() {
-        if ($this->_getPrimaryKeyValue()) {
+    public function save() 
+    {
+        if ($this->_getTracked() && $this->_getPrimaryKeyValue()) {
             
             $this->setLastModifiedOn(new \DateTime);
             //update
             return $this->_update();
         }
         
-        $this->setCreatedOn(new \DateTime);
+        if(!$this->getCreatedOn()) {
+            $this->setCreatedOn(new \DateTime);
+        }
         
         return $this->_insert();
     }
@@ -179,7 +185,7 @@ class Model extends \Virge\Core\Model {
             $success = false;
         }
         
-        $id = $stmt->insert_id;
+        $id = Database::connection($this->_connection)->insertId();
         
         $stmt->close();
         
@@ -283,8 +289,10 @@ class Model extends \Virge\Core\Model {
         }
 
         if($this->_updateLock) {
-            if(!Database::connection($this->_connection)->getResource()->autocommit(false)) {
-                throw new \RuntimeException("Failed to start transaction. SQL Error: " . Database::connection($this->_connection)->getError());
+            if(!Database::connection($this->_connection)->getResource()->inTransaction()) {
+                if(!Database::connection($this->_connection)->beginTransaction()) {
+                    throw new \RuntimeException("Failed to start transaction. SQL Error: " . Database::connection($this->_connection)->getError());
+                }
             }
         }
         
@@ -314,7 +322,7 @@ class Model extends \Virge\Core\Model {
                 
                 $this->$key = $value;
             }
-
+            
             static::setCache(static::class, $key_field, $id, $this);
         } else {
             foreach($data as $key => $value) {
@@ -326,6 +334,9 @@ class Model extends \Virge\Core\Model {
                 $this->$key = $value;
             }
         }
+
+        //set tracked, saves will trigger updates
+        $this->_setTracked(true);
         
         return true;
     }
@@ -375,7 +386,7 @@ class Model extends \Virge\Core\Model {
     public function _getLock()
     {
         $this->_updateLock = true;
-        Database::connection($this->_connection)->getResource()->autocommit(false);
+        Database::connection($this->_connection)->beginTransaction();
         if(!Database::query("SELECT null FROM `{$this->_table}` WHERE `{$this->_getPrimaryKey()}` = ? FOR UPDATE", [$this->_getPrimaryKeyValue()])) {
             throw new \RuntimeException("Failed to get lock: " . Database::connection($this->_connection)->getError());
         }
@@ -384,11 +395,18 @@ class Model extends \Virge\Core\Model {
 
     public function _releaseLock()
     {
-        if(!Database::connection($this->_connection)->getResource()->commit()) {
+        if(!Database::connection($this->_connection)->commit()) {
             throw new \RuntimeException("Failed to commit SQL Transaction: " . Database::connection($this->_connection)->getError());
         }
 
-        Database::connection($this->_connection)->getResource()->autocommit(true);
+        $this->_updateLock = false;
+    }
+
+    public function _rollBack()
+    {
+        if(!Database::connection($this->_connection)->rollBack()) {
+            throw new \RuntimeException("Failed to Rollback: " . Database::connection($this->_connection)->getError());
+        }
         $this->_updateLock = false;
     }
     
@@ -548,5 +566,17 @@ class Model extends \Virge\Core\Model {
         }
         
         return parent::get($key, $defaultValue);
+    }
+
+    public function _setTracked($tracked)
+    {
+        $this->_tracked = $tracked;
+
+        return $this;
+    }
+
+    public function _getTracked()
+    {
+        return $this->_tracked;
     }
 }
