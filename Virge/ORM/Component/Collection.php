@@ -249,6 +249,7 @@ class Collection extends \Virge\Core\Model {
             }
             
             $model = new $className($mainModelFields);
+            $model->_setTracked(true);
             
             $selectJoins = array_filter($this->joins, function($join) {
                 return $join->getSelect();
