@@ -187,14 +187,14 @@ class Model extends \Virge\Core\Model
             $this->setLastError($this->_formatSQLError($stmt));
             $success = false;
         }
-        
-        $id = Database::connection($this->_connection)->insertId();
-        
+        if($success){
+            $id = Database::connection($this->_connection)->insertId();
+            $primaryKey = $this->_getPrimaryKey();
+            $this->{$primaryKey} = $id;
+            //set tracked, saves will trigger updates
+            $this->_setTracked(true);
+        }
         $stmt->close();
-        
-        $primaryKey = $this->_getPrimaryKey();
-        
-        $this->{$primaryKey} = $id;
         
         return $success;
     }
