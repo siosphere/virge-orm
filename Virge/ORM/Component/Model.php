@@ -11,6 +11,8 @@ use Virge\Database\Exception\InvalidQueryException;
 
 class Model extends \Virge\Core\Model 
 {    
+    const ERROR_CODE_OK = '00000';
+    
     protected $_table = '';
     
     protected $_tableData = array();
@@ -109,8 +111,8 @@ class Model extends \Virge\Core\Model
             $sql = "DELETE FROM `{$this->_table}` WHERE `{$primaryKey}` =? LIMIT 1";
             $stmt = Database::connection($this->_connection)->prepare($sql, array($primaryKeyValue));
             $stmt->execute();
-            if ($stmt->error == '') {
-                $this->setLastError($stmt->error);
+            if ($stmt->errorCode() !== self::ERROR_CODE_OK) {
+                $this->setLastError($this->_formatSQLError($stmt));
             }
             $stmt->close();
         } else {
@@ -180,8 +182,9 @@ class Model extends \Virge\Core\Model
         $stmt = Database::connection($this->_connection)->prepare($sql, $values);
         $stmt->execute();
         $success = true;
-        if ($stmt->error !== '') {
-            $this->setLastError($stmt->error);
+
+        if ($stmt->errorCode() !== self::ERROR_CODE_OK) {
+            $this->setLastError($this->_formatSQLError($stmt));
             $success = false;
         }
         
@@ -236,8 +239,8 @@ class Model extends \Virge\Core\Model
         $stmt = Database::connection($this->_connection)->prepare($sql, $values);
         $stmt->execute();
         $this->setLastError(NULL);
-        if($stmt->error !== ''){
-            $this->setLastError($stmt->error);
+        if ($stmt->errorCode() !== self::ERROR_CODE_OK) {
+            $this->setLastError($this->_formatSQLError($stmt));
         }
         
         $stmt->close();
@@ -578,5 +581,11 @@ class Model extends \Virge\Core\Model
     public function _getTracked()
     {
         return $this->_tracked;
+    }
+
+    protected function _formatSQLError($stmt) : string
+    {
+        $info = $stmt->errorInfo();
+        return sprintf("SQLSTATE [{$info[0]}] ({$info[1]}): {$info[2]}");
     }
 }
