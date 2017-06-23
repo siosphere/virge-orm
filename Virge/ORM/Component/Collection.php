@@ -359,6 +359,7 @@ class Collection extends \Virge\Core\Model {
      */
     protected function _prepare($query) {
         $i = 0;
+        $paramValues = [];
         foreach($this->getParameters() as $parameter){
             $field = 'field' . $i;
             $$field = $parameter['value'];
