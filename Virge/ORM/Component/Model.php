@@ -13,9 +13,14 @@ class Model extends \Virge\Core\Model
 {    
     const ERROR_CODE_OK = '00000';
     
+    //const error types
+    const ERR_DELETE = 'delete';
+    const ERR_LOAD = 'load';
+    const ERR_SAVE = 'save';
+    
     protected $_table = '';
     
-    protected $_tableData = array();
+    protected $_tableData = [];
     
     protected static $_globalTableData;
     
@@ -54,7 +59,7 @@ class Model extends \Virge\Core\Model
      * Construct our object, will assign properties in key => value
      * @param array $data
      */
-    public function __construct($data = array()) {
+    public function __construct($data = []) {
         
         if(!is_array($data)){
             return;
@@ -112,7 +117,7 @@ class Model extends \Virge\Core\Model
             $stmt = Database::connection($this->_connection)->prepare($sql, array($primaryKeyValue));
             $stmt->execute();
             if ($stmt->errorCode() !== self::ERROR_CODE_OK) {
-                $this->setLastError($this->_formatSQLError($stmt));
+                $this->_handleError(self::ERR_DELETE, $this->_formatSQLError($stmt));
             }
             $stmt->close();
         } else {
@@ -184,7 +189,7 @@ class Model extends \Virge\Core\Model
         $success = true;
 
         if ($stmt->errorCode() !== self::ERROR_CODE_OK) {
-            $this->setLastError($this->_formatSQLError($stmt));
+            $this->_handleError(self::ERR_SAVE, $this->_formatSQLError($stmt));
             $success = false;
         }
         if($success){
@@ -240,7 +245,7 @@ class Model extends \Virge\Core\Model
         $stmt->execute();
         $this->setLastError(NULL);
         if ($stmt->errorCode() !== self::ERROR_CODE_OK) {
-            $this->setLastError($this->_formatSQLError($stmt));
+            $this->_handleError(self::ERR_SAVE, $this->_formatSQLError($stmt));
         }
         
         $stmt->close();
@@ -309,7 +314,9 @@ class Model extends \Virge\Core\Model
                 throw new InvalidQueryException('Failed to prepare SQL query: ' . $sql);
             }
             $stmt->execute();
-            
+            if ($stmt->errorCode() !== self::ERROR_CODE_OK) {
+                $this->_handleError(self::ERR_LOAD, $this->_formatSQLError($stmt));
+            }
             $data = $stmt->fetch_assoc();
             $stmt->close();
 
@@ -457,12 +464,12 @@ class Model extends \Virge\Core\Model
         $collection->setLimit($limit);
         $collection->setStart($start);
         $collection = $collection->get();
-        $results = array();
+        $results = [];
         while($row = $collection->fetch()){
             $results[] = $row;
         }
         if(empty($results)){
-            return array();
+            return [];
         }
         return $results;
     }
@@ -587,5 +594,10 @@ class Model extends \Virge\Core\Model
     {
         $info = $stmt->errorInfo();
         return sprintf("SQLSTATE [{$info[0]}] ({$info[1]}): {$info[2]}");
+    }
+
+    protected function _handleError($errorType, $errorMessage)
+    {
+        $this->setLastError($this->_formatSQLError($stmt));
     }
 }
