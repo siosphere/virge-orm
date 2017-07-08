@@ -54,6 +54,11 @@ class Model extends \Virge\Core\Model
         
         return self::$_cache[$className][$keyField][$keyValue] = $object;
     }
+
+    protected static function clearCache()
+    {
+        self::$_cache = [];
+    }
     
     /**
      * Construct our object, will assign properties in key => value
