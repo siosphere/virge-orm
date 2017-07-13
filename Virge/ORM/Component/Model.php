@@ -603,6 +603,6 @@ class Model extends \Virge\Core\Model
 
     protected function _handleError($errorType, $errorMessage)
     {
-        $this->setLastError($this->_formatSQLError($stmt));
+        $this->setLastError("[{$errorType}]: ${$errorMessage}");
     }
 }
