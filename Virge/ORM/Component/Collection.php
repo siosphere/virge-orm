@@ -243,7 +243,8 @@ class Collection extends \Virge\Core\Model {
             
             foreach($row as $key => $value) {
                 if(strpos($key, $this->getAlias()) === 0) {
-                    $newKey = str_replace($this->getAlias() . '_', '', $key);
+
+                    $newKey = substr_replace($key, '', 0, strlen($this->getAlias()) + 1);
                     $mainModelFields[$newKey] = $value;
                 }
             }
