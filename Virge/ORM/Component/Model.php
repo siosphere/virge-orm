@@ -400,8 +400,14 @@ class Model extends \Virge\Core\Model
 
     public function _getLock()
     {
+        if($this->_updateLock) {
+            return;
+        }
+
         $this->_updateLock = true;
-        Database::connection($this->_connection)->beginTransaction();
+        if(!Database::connection($this->_connection)->inTransaction()) {
+            Database::connection($this->_connection)->beginTransaction();
+        }
         if(!Database::query("SELECT null FROM `{$this->_table}` WHERE `{$this->_getPrimaryKey()}` = ? FOR UPDATE", [$this->_getPrimaryKeyValue()])) {
             throw new \RuntimeException("Failed to get lock: " . Database::connection($this->_connection)->getError());
         }
@@ -410,6 +416,10 @@ class Model extends \Virge\Core\Model
 
     public function _releaseLock()
     {
+        if(!$this->_updateLock || !Database::connection($this->_connection)->inTransaction()) {
+            return;
+        }
+
         if(!Database::connection($this->_connection)->commit()) {
             throw new \RuntimeException("Failed to commit SQL Transaction: " . Database::connection($this->_connection)->getError());
         }
@@ -603,6 +613,6 @@ class Model extends \Virge\Core\Model
 
     protected function _handleError($errorType, $errorMessage)
     {
-        $this->setLastError("[{$errorType}]: ${$errorMessage}");
+        $this->setLastError("[{$errorType}]: {$errorMessage}");
     }
 }
