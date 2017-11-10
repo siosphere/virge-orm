@@ -258,7 +258,7 @@ class Filter extends Model{
     public static function reset(){
         self::$filter_group = NULL;
         self::$filters = array();
-        self::$filter_groups = array();
+        self::$filter_groups = 1;
         self::$collection = NULL;
         self::$operator = 'AND';
     }
