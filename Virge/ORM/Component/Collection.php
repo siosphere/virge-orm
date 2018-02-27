@@ -19,8 +19,7 @@ class Collection extends \Virge\Core\Model {
     public $query = '';
     protected $start = 0;
     protected $limit = 25;
-    protected $order = false;
-    protected $dir = 'DESC';
+    protected $order = [];
     protected $result = NULL;
     protected $debug = false;
     protected $parameters = array();
@@ -131,19 +130,15 @@ class Collection extends \Virge\Core\Model {
     public function get($key = null, $defaultValue = null){
         $this->buildJoins();
         $this->buildWhere();
-        if($this->order){
+        if(!empty($this->order)) {
             $this->query .= " ORDER BY";
-            if(is_array($this->order)){
-                $i = 0;
-                foreach($this->order as $field => $dir){
-                    if($i > 0){
-                        $this->query .= ",";
-                    }
-                    $this->query .= " " . self::escapeField($field). " {$dir}";
-                    $i++;
+            $i = 0;
+            foreach($this->order as $field => $dir){
+                if($i > 0){
+                    $this->query .= ",";
                 }
-            } else {
-                $this->query .= " " . self::escapeField($this->order). " {$this->dir}";
+                $this->query .= " " . self::escapeField($field). " {$dir}";
+                $i++;
             }
         }
         if($this->getLimit() != NULL){
@@ -349,6 +344,39 @@ class Collection extends \Virge\Core\Model {
     public function groupBy($fields)
     {
         $this->groupBy = new GroupBy($fields);
+        return $this;
+    }
+
+    /**
+     * Fallback for using setDir directly
+     * @deprecated 
+     * @param [type] $dir
+     */
+    public function setDir($dir)
+    {
+        if(empty($this->order)) {
+            $this->order['default'] = $dir;
+        } else {
+            foreach($this->order as $key => $oldDir)
+            {
+                $this->order[$key] = $dir;
+                break;
+            }
+        }
+
+        return $this;
+    }
+
+    public function setOrder($order)
+    {
+        if(is_array($order)) {
+            $this->order = $order;
+
+            return $this;
+        }
+
+        $this->order[$order] = 'DESC';
+
         return $this;
     }
     
