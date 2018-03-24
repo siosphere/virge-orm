@@ -2,7 +2,10 @@
 namespace Virge\ORM\Component;
 
 use Virge\Database;
-use Virge\Database\Exception\InvalidQueryException;
+use Virge\Database\Exception\{
+    InvalidSchemaException,
+    InvalidQueryException
+};
 
 /**
  * 
@@ -286,6 +289,9 @@ class Model extends \Virge\Core\Model
         }
         
         $def = $this->_getDef();
+        if(!$def) {
+            throw new InvalidSchemaException(sprintf('%s is missing a DB Definition', static::class));
+        }
         
         $key_field = '';
         

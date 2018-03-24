@@ -355,7 +355,7 @@ class Collection extends \Virge\Core\Model {
     public function setDir($dir)
     {
         if(empty($this->order)) {
-            $this->order['default'] = $dir;
+            $this->order['__virgeOrderDefault'] = $dir;
         } else {
             foreach($this->order as $key => $oldDir)
             {
@@ -379,7 +379,7 @@ class Collection extends \Virge\Core\Model {
 
         return $this;
     }
-    
+
     /**
      * Prepare a statement
      * @param string $query
@@ -455,6 +455,10 @@ class Collection extends \Virge\Core\Model {
     }
     
     public static function escapeField($field) {
+        if($field === '__virgeOrderDefault') {
+            return '';
+        }
+
         return implode('.', array_map(function($part) {
             return "`{$part}`";
         }, explode('.', $field)));
