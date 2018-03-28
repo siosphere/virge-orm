@@ -237,7 +237,7 @@ class Model extends \Virge\Core\Model
             
             if($this->$field_name instanceof \DateTime){
                 $$field_name = $this->$field_name->format('Y-m-d H:i:s');
-            } elseif(is_array($$field_name)){
+            } elseif(is_array($this->$field_name)){
                 $$field_name = json_encode($$field_name);
             } else {
                 $$field_name = $this->$field_name;
