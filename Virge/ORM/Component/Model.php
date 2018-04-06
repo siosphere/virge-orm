@@ -34,6 +34,36 @@ class Model extends \Virge\Core\Model
     protected $_tracked = false;
     
     protected static $_cache = [];
+
+    public function _beforeSave()
+    {
+
+    }
+
+    public function _afterSave()
+    {
+
+    }
+
+    public function _beforeLoad()
+    {
+
+    }
+
+    public function _afterLoad()
+    {
+        
+    }
+
+    public function _beforeDelete()
+    {
+
+    }
+
+    public function _afterDelete()
+    {
+
+    }
     
     protected static function getFromCache($className, $keyField, $keyValue)
     {
@@ -110,7 +140,7 @@ class Model extends \Virge\Core\Model
      */
     public function delete($real = false) 
     {
-        
+        $this->_beforeDelete();
         $primaryKey = $this->_getPrimaryKey();
         $primaryKeyValue = $this->_getPrimaryKeyValue();
         
@@ -133,7 +163,9 @@ class Model extends \Virge\Core\Model
             $this->save();
         }
         
-        return $this->getLastError() === NULL ? true : false;
+        $result = $this->getLastError() === NULL ? true : false;
+        $this->_afterDelete();
+        return $result;
     }
 
     /**
@@ -142,18 +174,25 @@ class Model extends \Virge\Core\Model
      */
     public function save() 
     {
+        $this->_beforeSave();
         if ($this->_getTracked() && $this->_getPrimaryKeyValue()) {
             
             $this->setLastModifiedOn(new \DateTime);
             //update
-            return $this->_update();
+            $result = $this->_update();
+            $this->_afterSave();
+
+            return $result;
         }
         
         if(!$this->getCreatedOn()) {
             $this->setCreatedOn(new \DateTime);
         }
         
-        return $this->_insert();
+        $result = $this->_insert();
+        $this->_afterSave();
+        
+        return $result;
     }
     
     /**
@@ -280,6 +319,7 @@ class Model extends \Virge\Core\Model
      */
     public function load($id = 0, $by_field = false, $use_cache = false) {
         
+        $this->_beforeLoad();
         if($id === NULL && $this->_getPrimaryKeyValue()){
             $id = $this->_getPrimaryKeyValue();
         }
@@ -358,7 +398,7 @@ class Model extends \Virge\Core\Model
 
         //set tracked, saves will trigger updates
         $this->_setTracked(true);
-        
+        $this->_afterLoad();
         return true;
     }
     
