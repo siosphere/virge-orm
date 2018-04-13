@@ -81,9 +81,15 @@ class Filter extends Model{
      * @param string $field_name
      * @param mixed $value
      */
-    public static function like($field_name, $value){
+    public static function like($field_name, $value, $raw = false){
         self::before();
         $safeField = self::getFieldName($field_name);
+        if($raw) {
+            $safeValue = self::getFieldName($value);
+            self::$collection->query .= " {$safeField} LIKE {$safeValue}";
+            self::after();
+            return;
+        }
         self::$collection->query .= " {$safeField} LIKE ?";
         self::param('s', $value);
         self::after();
@@ -93,9 +99,15 @@ class Filter extends Model{
      * @param string $field_name
      * @param mixed $value
      */
-    public static function notLike($field_name, $value){
+    public static function notLike($field_name, $value, $raw = false){
         self::before();
         $safeField = self::getFieldName($field_name);
+        if($raw) {
+            $safeValue = self::getFieldName($value);
+            self::$collection->query .= " {$safeField} NOT LIKE {$safeValue}";
+            self::after();
+            return;
+        }
         self::$collection->query .= " {$safeField} NOT LIKE ?";
         self::param('s', $value);
         self::after();
@@ -105,9 +117,16 @@ class Filter extends Model{
      * @param string $field_name
      * @param mixed $value
      */
-    public static function eq($field_name, $value){
+    public static function eq($field_name, $value, $raw = false){
         self::before();
         $safeField = self::getFieldName($field_name);
+        if($raw) {
+            $safeValue = self::getFieldName($value);
+            self::$collection->query .= " {$safeField} = {$safeValue}";
+            self::after();
+            return;
+        }
+
         self::$collection->query .= " {$safeField} = ?";
         if(is_numeric($value)){
             self::param('i', $value);
@@ -121,9 +140,15 @@ class Filter extends Model{
      * @param string $field_name
      * @param mixed $value
      */
-    public static function neq($field_name, $value){
+    public static function neq($field_name, $value, $raw = false){
         self::before();
         $safeField = self::getFieldName($field_name);
+        if($raw) {
+            $safeValue = self::getFieldName($value);
+            self::$collection->query .= " {$safeField} != {$safeValue}";
+            self::after();
+            return;
+        }
         self::$collection->query .= " {$safeField} != ?";
         if(is_numeric($value)){
             self::param('i', $value);
@@ -137,9 +162,15 @@ class Filter extends Model{
      * @param string $field_name
      * @param mixed $value
      */
-    public static function gte($field_name, $value){
+    public static function gte($field_name, $value, $raw = false){
         self::before();
         $safeField = self::getFieldName($field_name);
+        if($raw) {
+            $safeValue = self::getFieldName($value);
+            self::$collection->query .= " {$safeField} >= {$safeValue}";
+            self::after();
+            return;
+        }
         self::$collection->query .= " {$safeField} >= ?";
         if(is_numeric($value)){
             self::param('i', $value);
@@ -153,9 +184,15 @@ class Filter extends Model{
      * @param string $field_name
      * @param mixed $value
      */
-    public static function gt($field_name, $value){
+    public static function gt($field_name, $value, $raw = false){
         self::before();
         $safeField = self::getFieldName($field_name);
+        if($raw) {
+            $safeValue = self::getFieldName($value);
+            self::$collection->query .= " {$safeField} > {$safeValue}";
+            self::after();
+            return;
+        }
         self::$collection->query .= " {$safeField} > ?";
         if(is_numeric($value)){
             self::param('i', $value);
@@ -169,9 +206,15 @@ class Filter extends Model{
      * @param string $field_name
      * @param mixed $value
      */
-    public static function lte($field_name, $value){
+    public static function lte($field_name, $value, $raw = false){
         self::before();
         $safeField = self::getFieldName($field_name);
+        if($raw) {
+            $safeValue = self::getFieldName($value);
+            self::$collection->query .= " {$safeField} <= {$safeValue}";
+            self::after();
+            return;
+        }
         self::$collection->query .= " {$safeField} <= ?";
         if(is_numeric($value)){
             self::param('i', $value);
@@ -185,9 +228,15 @@ class Filter extends Model{
      * @param string $field_name
      * @param mixed $value
      */
-    public static function lt($field_name, $value){
+    public static function lt($field_name, $value, $raw = false){
         self::before();
         $safeField = self::getFieldName($field_name);
+        if($raw) {
+            $safeValue = self::getFieldName($value);
+            self::$collection->query .= " {$safeField} < {$safeValue}";
+            self::after();
+            return;
+        }
         self::$collection->query .= " {$safeField} < ?";
         if(is_numeric($value)){
             self::param('i', $value);
