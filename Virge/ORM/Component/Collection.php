@@ -46,9 +46,9 @@ class Collection extends \Virge\Core\Model {
      * @param string $model
      * @return \Virge\ORM\Component\Collection\Collection
      */
-    public static function model($model, $alias = ''){
+    public static function model($model, $alias = '', $modelOverride = null){
         $collection = new Collection();
-        $collection->setModel(new $model);
+        $collection->setModel($modelOverride ?? new $model);
         
         //set the collection to use the model connection type by default
         $collection->connection($collection->getModel()->_getConnection());
